@@ -1,8 +1,7 @@
-''' Client for UNICORE 
+''' Client for UNICORE
     Based on https://sourceforge.net/p/unicore/wiki/REST_API/
 '''
 
-import cStringIO
 import logging
 import os
 import re
@@ -14,8 +13,10 @@ from datetime import datetime, timedelta
 from ftplib import FTP
 
 if sys.version_info < (3, 0):
+    #import cStringIO
     from types import StringType
 else:
+    #import cStringIO
     StringType = str  # pragma: no cover
 
 # TODO:
@@ -87,7 +88,7 @@ class Transport(object):
             val = 'Bearer %s' % self.auth_token
         else:
             val = 'Basic %s' % self.auth_token
-        
+
         headers = {'Authorization': val,
                    'Accept': 'application/json',
                    'Content-Type': 'application/json',
@@ -149,7 +150,7 @@ class Resource(object):
 
 
 class Registry(Resource):
-    ''' Client for a UNICORE service Registry 
+    ''' Client for a UNICORE service Registry
 
         >>> base_url = '...' # e.g. "https://localhost:8080/REGISTRY/rest/registries/default_registry"
         >>> token = '...'
@@ -162,7 +163,7 @@ class Registry(Resource):
     def __init__(self, transport, url):
         super(Registry, self).__init__(transport,url)
         self.refresh()
-    
+
     def refresh(self):
         self.site_urls = {}
         for entry in self.transport.get(url=self.resource_url)['entries']:
@@ -197,7 +198,7 @@ class Client(object):
         >>> job_description = {...}
         >>> job = client.new_job(job_description)
     '''
-    
+
     def __init__(self, transport, site_url):
         super(Client, self).__init__()
         self.transport = transport
@@ -329,7 +330,7 @@ class Path(Resource):
 
     #def get_metadata(self, name):
     #    pass
-    
+
     def remove(self):
         '''remove file or directory'''
         return self.transport.delete(url=self.path_urls['files']+"/"+name)
@@ -360,7 +361,7 @@ class PathDir(Path):
         assert self.isdir(), 'Not a directory'
         if destination is None:
             destination = os.path.basename(input_name)
-        
+
         headers = {'Content-Type': 'application/octet-stream',
                    }
         with open(input_name, 'rb') as fd:
@@ -371,7 +372,7 @@ class PathDir(Path):
 
     def download(self, remote_file, destination=None):
         ''' download remote_file to the current directory, optionally to the given local destination '''
-        
+
         assert self.isdir(), 'Not a directory'
         headers = {'Accept': 'application/octet-stream',}
         url = os.path.join(self.resource_url, 'files', remote_file)
@@ -542,4 +543,3 @@ class Share(Resource):
         req['user'] = user
         res = self.transport.post(url=self.resource_url, json=req)
         return res.headers['Location']
-
